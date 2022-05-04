@@ -4,7 +4,6 @@ class FlagGroup:
 
     def clear(self):
         self.carry = 0
-        self.borrow = 0
         self.overflow = 0
         self.zero = 0
 
@@ -51,22 +50,22 @@ class ULA:
 
     def sub(self, carry=False):
         if not carry:
-            self.registers.flags.carry = self.registers.B
+            self.registers.C = self.registers.B
 
-        if self.registers.flags.carry == 0:
+        if self.registers.C == 0:
             return
 
-        self.registers.flags.borrow = (~self.registers.A) & self.registers.flags.carry
+        self.registers.flags.carry = (~self.registers.A) & self.registers.C
 
         # Subtraction of bits of x
         # and y where at least one
         # of the bits is not set
-        self.registers.A = self.registers.A ^ self.registers.flags.carry
+        self.registers.A = self.registers.A ^ self.registers.C
 
         # Borrow is shifted by one
         # so that subtracting it from
         # x gives the required sum
-        self.registers.flags.carry = self.registers.flags.borrow << 1
+        self.registers.C = self.registers.flags.carry << 1
 
         return self.sub(carry=True)
 
