@@ -10,7 +10,6 @@ class FlagGroup:
 
 class RegisterGroup:
     def __init__(self, A=0, B=0, C=0, D=0, size=4) -> None:
-        self.size = size
         self.A = A
         self.B = B
         self.C = C
@@ -19,12 +18,15 @@ class RegisterGroup:
 
 
 class ULA:
-    def __init__(self, A=0, B=0, op=0, size=4) -> None:
-        self.registers = RegisterGroup(
-            A=ULA.binary_parse(A, size),
-            B=ULA.binary_parse(B, size),
-            size=size
-        )
+    def __init__(self, A=None, B=None, op=None, size=4) -> None:
+        if A and B:
+            self.registers = RegisterGroup(
+                A=ULA.binary_parse(A, size),
+                B=ULA.binary_parse(B, size),
+            )
+        else:
+            self.registers = RegisterGroup()
+
         self.size = size
         self.op = op
 
@@ -124,7 +126,9 @@ class ULA:
         self.product(carry=True)
 
     def execute_instruction(self):
-        self.registers.flags.clear()
+        if not self.op:
+            raise ValueError("Selecione ao menos uma opção!")
+        
         self.operations[self.op]()
         self.registers.flags.zero = self.registers.A == 0
         self.registers.flags
