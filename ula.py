@@ -8,10 +8,11 @@ class FlagGroup:
         self.zero = 0
 
 class RegisterGroup:
-    def __init__(self, A=0, B=0, C=0,size=4) -> None:
+    def __init__(self, A=0, B=0, C=0, D=0, size=4) -> None:
         self.A = A
         self.B = B
         self.C = C
+        self.D = D
         self.size = size
         self.flags = FlagGroup()
 
@@ -31,7 +32,7 @@ class ULA:
         self.registers = RegisterGroup(A, B, size)
         self.op = op
 
-        self.operations: list[function] = [self.sum, self.sub]
+        self.operations: list[function] = [self.sum, self.sub, self.product]
 
     def sum(self, carry=False):
         if not carry:
@@ -69,6 +70,24 @@ class ULA:
 
         return self.sub(carry=True)
 
+    def product(self, carry=False):
+        if not carry:
+            self.registers.C = self.registers.A
+            self.registers.D = self.registers.B
+            self.registers.A = 0
+
+        if self.registers.D <= 0:
+            return
+        
+        if self.registers.D & 1:
+            self.registers.A = self.registers.A + self.registers.C
+
+        self.registers.C = self.registers.C << 1
+        self.registers.D = self.registers.D >> 1
+
+        self.product(carry=True)
+
     def execute_instruction(self):
         self.registers.flags.clear()
         self.operations[self.op]()
+        self.registers.flags.zero = self.registers.A & 0
