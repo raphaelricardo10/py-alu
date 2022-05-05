@@ -132,7 +132,7 @@ class ULA:
 
         self.product(carry=True)
 
-    def execute_instruction(self):
+    def execute_operation(self):
         if not self.op:
             raise ValueError("Selecione ao menos uma opção!")
         
