@@ -132,10 +132,21 @@ class ULA:
 
         self.product(carry=True)
 
+    def print_operations(self):
+        counter = 0
+        options = [
+            "Soma",
+            "Subtração",
+            "Multiplicação"
+        ]
+        for option in options:
+            print(f"{counter:03b}- {option}")
+            counter += 1
+
     def execute_operation(self):
-        if not self.op:
-            raise ValueError("Selecione ao menos uma opção!")
-        
+        if self.op is None:
+            raise ValueError("Selecione uma opção!")
+
         self.operations[self.op]()
         self.registers.flags.zero = self.registers.A == 0
         self.registers.flags
