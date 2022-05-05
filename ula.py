@@ -28,7 +28,11 @@ class ULA:
             self.registers = RegisterGroup()
 
         self.size = size
-        self.op = op
+
+        if op:
+            self.write_op(op)
+        else:
+            self.op = None
 
         self.operations: list[function] = [self.sum, self.sub, self.product]
 
@@ -71,6 +75,9 @@ class ULA:
             self.registers.D = value
         else:
             raise ValueError("Este registrador não existe na ULA!")
+
+    def write_op(self, value):
+        self.op = ULA.binary_parse(value, self.size)
 
     def sum(self, carry=False):
         if not carry:
