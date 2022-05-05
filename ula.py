@@ -7,32 +7,69 @@ class FlagGroup:
         self.overflow = 0
         self.zero = 0
 
+
 class RegisterGroup:
     def __init__(self, A=0, B=0, C=0, D=0, size=4) -> None:
+        self.size = size
         self.A = A
         self.B = B
         self.C = C
         self.D = D
-        self.size = size
         self.flags = FlagGroup()
 
-    def binary_check(number):
-        pass
-
-    @property
-    def A(self):
-        return self._A
-
-    @A.setter
-    def A(self, value):
-        self._A = value
 
 class ULA:
     def __init__(self, A=0, B=0, op=0, size=4) -> None:
-        self.registers = RegisterGroup(A, B, size)
+        self.registers = RegisterGroup(
+            A=ULA.binary_parse(A, size),
+            B=ULA.binary_parse(B, size),
+            size=size
+        )
+        self.size = size
         self.op = op
 
         self.operations: list[function] = [self.sum, self.sub, self.product]
+
+    def pick_register(self, register: str):
+        if register == 'A':
+            return self.registers.A
+        if register == 'B':
+            return self.registers.B
+        if register == 'C':
+            return self.registers.C
+        if register == 'D':
+            return self.registers.D
+        else:
+            raise ValueError("Este registrador não existe na ULA!")
+
+    def binary_parse(number: str, size: int):
+        if len(number) > size:
+            raise ValueError(
+                f"A entrada {number} extrapola o tamanho de {size} bits da ULA!")
+        try:
+            number = int(number, 2)
+
+        except ValueError:
+            raise ValueError(f"Somente os valores 0 e 1 são permitidos!")
+
+        return number
+
+    def read_register(self, register: str):
+        return f"{self.pick_register(register):0{self.size}b}"
+
+    def write_register(self, register: str, value: bin):
+        value = ULA.binary_parse(value, self.size)
+
+        if register == 'A':
+            self.registers.A = value
+        elif register == 'B':
+            self.registers.B = value
+        elif register == 'C':
+            self.registers.C = value
+        elif register == 'D':
+            self.registers.D = value
+        else:
+            raise ValueError("Este registrador não existe na ULA!")
 
     def sum(self, carry=False):
         if not carry:
@@ -44,7 +81,7 @@ class ULA:
         self.registers.flags.carry = self.registers.A & self.registers.C
 
         self.registers.A = self.registers.A ^ self.registers.C
-        
+
         self.registers.C = self.registers.flags.carry << 1
 
         return self.sum(carry=True)
@@ -78,7 +115,7 @@ class ULA:
 
         if self.registers.D <= 0:
             return
-        
+
         if self.registers.D & 1:
             self.registers.A = self.registers.A + self.registers.C
 
@@ -90,4 +127,5 @@ class ULA:
     def execute_instruction(self):
         self.registers.flags.clear()
         self.operations[self.op]()
-        self.registers.flags.zero = self.registers.A & 0
+        self.registers.flags.zero = self.registers.A == 0
+        self.registers.flags
