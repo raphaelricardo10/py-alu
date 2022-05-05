@@ -30,18 +30,6 @@ class ULA:
 
         self.operations: list[function] = [self.sum, self.sub, self.product]
 
-    def pick_register(self, register: str):
-        if register == 'A':
-            return self.registers.A
-        if register == 'B':
-            return self.registers.B
-        if register == 'C':
-            return self.registers.C
-        if register == 'D':
-            return self.registers.D
-        else:
-            raise ValueError("Este registrador não existe na ULA!")
-
     def binary_parse(number: str, size: int):
         if len(number) > size:
             raise ValueError(
@@ -55,7 +43,18 @@ class ULA:
         return number
 
     def read_register(self, register: str):
-        return f"{self.pick_register(register):0{self.size}b}"
+        if register == 'A':
+            register = self.registers.A
+        elif register == 'B':
+            register = self.registers.B
+        elif register == 'C':
+            register = self.registers.C
+        elif register == 'D':
+            register = self.registers.D
+        else:
+            raise ValueError("Este registrador não existe na ULA!")
+
+        return f"{register:0{self.size}b}"
 
     def write_register(self, register: str, value: bin):
         value = ULA.binary_parse(value, self.size)
